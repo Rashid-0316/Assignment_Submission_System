@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}
+Dashboard
+{% endblock title %}
+
+{% block content %}
+<section class="text-gray-600 body-font overflow-hidden">
+  <div class="container px-5 py-20 mx-auto">
+    <div class="lg:w-4/5 mx-auto flex flex-wrap">
+      <div class="lg:w-full w-full lg:pr-10 lg:py-6 mb-6 lg:mb-0">
+        {% comment %} <h2 class="text-sm title-font text-gray-500 tracking-widest">BRAND NAME</h2> {% endcomment %}
+        <h1 class="text-gray-900 text-3xl title-font font-medium mb-4">{{hod.department}}</h1>
+        <div class="flex mb-4">
+          <a href='#' class="flex-grow text-blue-500 border-b-2 border-blue-500 py-2 text-lg px-1">Description</a>
+          <a href="{% url 'deptt-update-view' id %}" class="flex-grow border-b-2 border-gray-300 py-2 text-lg px-1">Deptt update</a>
+          <a href="{% url 'hod-update-view' hod.id %}" class="flex-grow border-b-2 border-gray-300 py-2 text-lg px-1">HOD update</a>
+        </div>
+        <div class="flex py-5">
+          <span class="text-gray-500">{{hod.first_name}} {{hod.last_name}}</span>
+        </div>
+        <div class="flex border-t border-gray-200 py-5">
+          <span class="text-gray-500">{{hod.email}}</span>
+        </div>
+        <div class="flex border-t border-gray-200 py-5">
+          <span class="text-gray-500">{{hod.date_joined}}</span>
+        </div>
+        
+        
+      </div>
+      </div>
+  </div>
+</section>
+
+
+{% endblock content %}
