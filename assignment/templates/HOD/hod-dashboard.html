@@ -25,7 +25,7 @@ Dashboard
             <circle cx="9" cy="7" r="4"></circle>
             <path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"></path>
           </svg>
-          <h2 class="title-font font-medium text-3xl text-gray-900">{{teachers_count}}</h2>
+          <h2 class="title-font font-medium text-3xl text-gray-900">{{teachers.count}}</h2>
           <p class="leading-relaxed">Teacher</p>
         </div>
       </div>
@@ -36,7 +36,7 @@ Dashboard
             <circle cx="9" cy="7" r="4"></circle>
             <path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"></path>
           </svg>
-          <h2 class="title-font font-medium text-3xl text-gray-900">{{clerks_count}}</h2>
+          <h2 class="title-font font-medium text-3xl text-gray-900">0</h2>
           <p class="leading-relaxed">Clerks</p>
         </div>
       </div>
@@ -47,7 +47,7 @@ Dashboard
             <circle cx="9" cy="7" r="4"></circle>
             <path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"></path>
           </svg>
-          <h2 class="title-font font-medium text-3xl text-gray-900">{{students_count}}</h2>
+          <h2 class="title-font font-medium text-3xl text-gray-900">{{students.count}}</h2>
           <p class="leading-relaxed">Students</p>
         </div>
       </div>
@@ -65,11 +65,11 @@ Dashboard
 <div class="container px-5 mx-auto">
 <div class="flex justify-between pb-3">
 <div>
-<h1 class="text-2xl">Departments</h1>
+<h1 class="text-2xl">Teachers</h1>
 </div>
 
 <div>
-<a href="{% url 'deptt-create-view' %}" class="text-2xl">Create a new Department</a>
+<a href="{% url 'teacher-create-view' %}" class="text-2xl">Create a new Teacher</a>
 </div>
 
 </div>
@@ -81,17 +81,17 @@ Dashboard
           <thead class="bg-gray-50">
             <tr>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Department Name
+                Name
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Incharge Name
+                Post
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Email
               </th>
               
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Role
+                Date joined
               </th>
               <th scope="col" class="relative px-6 py-3">
                 <span class="sr-only">Edit</span>
@@ -99,7 +99,7 @@ Dashboard
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-          {% for teacher in current_department %}
+          {% for teacher in teachers %}
             <tr>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
@@ -108,23 +108,26 @@ Dashboard
                   </div>
                   <div class="ml-4">
                     <div class="text-sm font-medium text-gray-900">
-                      {{teacher.department}}
+                      {{teacher.teacher.first_name}} {{teacher.teacher.last_name}}
                     </div>
                   </div>
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">{{teacher.first_name}} {{teacher.last_name}}</div>
+                <div class="text-sm text-gray-900">{{teacher.post}}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">{{teacher.email}}</div>
+                <div class="text-sm text-gray-900">{{teacher}}</div>
               </td>
               
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{teacher.role}}
+                {{teacher.date_created}}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <a href="#" class="text-indigo-600 hover:text-indigo-900">View</a>
+                <a href="{% url 'teacher-update-view' teacher.teacher.id %}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <a href="{% url 'teacher-delete-view' teacher.teacher.id %}" class="text-indigo-600 hover:text-indigo-900">Delete</a>
               </td>
             </tr>
             {% endfor %}

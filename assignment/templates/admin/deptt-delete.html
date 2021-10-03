@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}
+Dashboard
+{% endblock title %}
+
+{% block content %}
+<div class="container mx-auto">
+Are you sure you want to delete {{department}}
+
+<form action="" method="post">
+{% csrf_token %}
+{{form}}
+<button class="py-3 px-3 bg-red-300 text-gray-1000">Delete</button>
+</form>
+</div>
+
+
+{% endblock content %}

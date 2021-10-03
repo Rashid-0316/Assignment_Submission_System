@@ -3,21 +3,33 @@ from .models import *
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 
-class HODCreationForm(forms.ModelForm):
+class User_Form(forms.ModelForm):
     # password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     # password2 = forms.CharField(label='Repeat Password', widget=forms.PasswordInput)
 
     class Meta:
         model = User
-        fields = ['first_name','last_name','email','department']
-    
+        fields = ['first_name','last_name','email']
+class Teacher_User_Form(forms.ModelForm):
+    # password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
+    # password2 = forms.CharField(label='Repeat Password', widget=forms.PasswordInput)
+
+    class Meta:
+        model = Teacher_User
+        fields = ['post',]
+# class HOD_Form(forms.ModelForm):
+#     class Meta:
+#         model = HOD_User
+#         fields = ['department']
+
+
 class UserCreationForm(forms.ModelForm):
     # password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     # password2 = forms.CharField(label='Repeat Password', widget=forms.PasswordInput)
 
     class Meta:
         model = User
-        fields = ['first_name','last_name','email','department']
+        fields = ['first_name','last_name','email',]
     # def clean_password2(self):
     #     password1 = self.cleaned_data.get('password1')
     #     password2 = self.cleaned_data.get('password2')
@@ -40,7 +52,7 @@ class CustomCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['first_name','last_name','email','department']
+        fields = ['first_name','last_name','email']
     
 
     def clean_password2(self):

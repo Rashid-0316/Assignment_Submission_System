@@ -12,16 +12,29 @@ Dashboard
         {% comment %} <h2 class="text-sm title-font text-gray-500 tracking-widest">BRAND NAME</h2> {% endcomment %}
         <h1 class="text-gray-900 text-3xl title-font font-medium mb-4">{{name}}</h1>
         <div class="flex mb-4">
-          <a href="{% url 'deptt-detail-view' hod %}" class="flex-grow border-b-2 border-gray-300 py-2 text-lg px-1">Description</a>
+          <a href="{% url 'deptt-detail-view' id %}" class="flex-grow border-b-2 border-gray-300 py-2 text-lg px-1">Description</a>
           <a href="#" class="flex-grow text-blue-500 border-b-2 border-blue-500 py-2 text-lg px-1">Deptt update</a>
-          <a href="{% url 'hod-update-view' hod %}" class="flex-grow border-b-2 border-gray-300 py-2 text-lg px-1">HOD update</a>
+          {% if hod_id %}
+          <a href="{% url 'hod-update-view' user_id %}" class="flex-grow border-b-2 border-gray-300 py-2 text-lg px-1">HOD update</a>
+          {% endif %}
+          
         </div>
         <form action="" method="post">
          {% csrf_token %}
         {{ form|crispy }}
+        <div class="flex flex-between gap-4">
         <button type='submit' class="w-full text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md">
             Update Department
         </button>
+         <a href="{% url 'hod-create-view' %}" type='submit' class="w-full text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 text-center rounded-md">
+            Create HOD
+        </a>
+        <a href="{% url 'deptt-delete-view' id %}" type='submit' class="w-full text-white bg-red-500 hover:bg-red-600 px-3 py-2 text-center rounded-md">
+            Delete Department
+        </a>
+       
+        </div>
+        
         </form>
         
       </div>
