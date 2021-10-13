@@ -21,9 +21,10 @@
     {%elif request.user.is_hod %}
     <a href="{% url 'hod-dashboard' %}" class="mr-5 hover:text-gray-900">Dashboard</a>
     <a href="{% url 'teacher-list-view' %}" class="mr-5 hover:text-gray-900">Teachers</a>
-    <a href="#" class="mr-5 hover:text-gray-900">Students</a>
+    <a href="{% url 'batch-list-view' %}" class="mr-5 hover:text-gray-900">Students</a>
+    {%elif request.user.is_teacher %}
     
-
+    <a href="{% url 'teacher-dashboard' %}" class="mr-5 hover:text-gray-900">Dashboard</a>
     {% endif %}
     </nav>
         <a href="{% url 'logout' %}" class="inline-flex items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0">Logout

@@ -1,9 +1,10 @@
 from django.db import models
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models.base import Model
 from .manager import UserManager
 from django.db.models.signals import post_save
-
+from django.urls import reverse
 
 # class University(models.Model):
 #     name = models.CharField(max_length=250)
@@ -101,12 +102,79 @@ class Teacher_User(models.Model):
         verbose_name_plural = ("Teachers")
 
 
+# class Subject(models.Model):
+#     """Model definition for Subject."""
+#     subject_code=models.CharField(max_length=250)
+#     name = models.CharField(max_length=250)
+#     department = models.ForeignKey(
+#         Department, related_name='subject', null=True, blank=True, on_delete=models.CASCADE)
+
+
+#     class Meta:
+#         """Meta definition for Subject."""
+
+#         verbose_name = 'Subject'
+#         verbose_name_plural = 'Subjects'
+
+#     def __str__(self):
+#         """Unicode representation of Subject."""
+#         return self.name
+
+class Semester(models.Model):
+    """Model definition for Semester."""
+    name = models.CharField(max_length=250)
+    courses=models.ManyToManyField("Course",null=True,blank=True,related_name='semester_course')
+    department = models.ForeignKey(Department,related_name='semesters',null=True, blank=True, on_delete=models.CASCADE)
+    class Meta:
+        """Meta definition for Semester."""
+        verbose_name = 'Semester'
+        verbose_name_plural = 'Semesters'
+
+    def __str__(self):
+        """Unicode representation of Semester."""
+        return self.name
+
+    
+class Course(models.Model):
+    """Model definition for Course."""
+
+    subject_name = models.CharField(max_length=250, null=True, blank=True)
+    subject_code = models.CharField(max_length=250,null=True,blank=True)
+    teacher=models.ForeignKey(Teacher_User,related_name='courses_of_teacher',on_delete=models.CASCADE,null=True,blank=True)
+    department = models.ForeignKey(
+        Department, related_name='course', null=True, blank=True, on_delete=models.CASCADE)
+
+    class Meta:
+        """Meta definition for Course."""
+
+        verbose_name = 'Course'
+        verbose_name_plural = 'Courses'
+
+    def __str__(self):
+        return self.subject_name
+
+
+class Batch(models.Model):
+    name = models.CharField(max_length=250)
+    semester=models.ForeignKey(Semester,null=True,blank=True,on_delete=models.CASCADE)
+    department=models.ForeignKey(Department,null=True,blank=True,on_delete=models.CASCADE)
+    class Meta:
+        verbose_name = ("batch")
+        verbose_name_plural = ("batches")
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("batch_detail", kwargs={"pk": self.pk})
+
 
 class Student_User(models.Model):
-    student=models.OneToOneField(User,null=True,blank=True,on_delete=models.CASCADE)
+    student=models.OneToOneField(User,related_name='student_user',null=True,blank=True,on_delete=models.CASCADE)
     department = models.ForeignKey(Department,blank=True,null=True,on_delete=models.CASCADE)
+    batch=models.ForeignKey(Batch,on_delete=models.CASCADE,related_name='students',null=True,blank=True)
     reg_no = models.CharField(max_length=255)
-    roll_no = models.IntegerField()
+    roll_no = models.IntegerField(null=True,blank=True)
     date_created=models.DateTimeField(auto_now_add=True)
     class Meta:
         verbose_name = 'Student_User'
@@ -124,7 +192,5 @@ def create_profile(sender, instance,created,**kwargs):
             HOD_User.objects.create(hod=instance)
         elif instance.user_type=='clerk':
             Clerk_User.objects.create(clerk=instance)
-        elif instance.user_type=='student':
-            Student_User.objects.create(student=instance)
 
 post_save.connect(create_profile, sender=User)

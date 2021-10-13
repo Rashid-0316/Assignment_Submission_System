@@ -70,3 +70,60 @@ class CustomCreationForm(forms.ModelForm):
             user.save()
         return user
 
+
+class Batch_Create_Form(forms.ModelForm):
+    """Form definition for Batch_Create_."""
+    class Meta:
+        """Meta definition for Batch_Create_form."""
+        model = Batch
+        fields = ('name','semester',)
+
+
+class Semester_Create_Form(forms.ModelForm):
+    """Form definition for Batch_Create_."""
+    class Meta:
+        """Meta definition for Batch_Create_form."""
+        model = Semester
+        fields = ('name', 'courses',)
+
+    def __init__(self, *args, **kwargs):
+
+        self.request = kwargs.pop('request')
+        super(Semester_Create_Form, self).__init__(*args, **kwargs)
+        self.fields['courses'].queryset = Course.objects.filter(
+            department=self.request.user.hod.department)
+    name = forms.CharField()
+    courses = forms.ModelMultipleChoiceField(
+        queryset=Course.objects.all(),
+        widget=forms.CheckboxSelectMultiple
+    )
+    
+    
+
+class Student_Create_Form(forms.ModelForm):
+    """Form definition for Student_Create_."""
+
+    class Meta:
+        """Meta definition for Student_Create_form."""
+
+        model = Student_User
+        fields = ('reg_no','roll_no',)
+    
+    
+    def __init__(self, *args, **kwargs):
+        super(Student_Create_Form, self).__init__(*args, **kwargs)
+        self.fields['roll_no'].widget.attrs['required'] = 'required'
+
+
+# class Subject_Create_Form(forms.ModelForm):
+#     """Form definition for Subject_."""
+#     class Meta:
+#         """Meta definition foCreate_r Subject_form."""
+#         model= Subject
+#         fields = ('subject_code', 'name',)
+
+
+class Course_Create_Form(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = ('subject_name', 'subject_code', 'teacher',)

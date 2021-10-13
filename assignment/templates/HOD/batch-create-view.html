@@ -4,10 +4,17 @@
 {% block content %}
 
 <div class="max-w-lg mx-auto">
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
     <form method="post" class="mt-5">
         {% csrf_token %}
-        {{ form1|crispy }}
-        {{ form2|crispy }}
+        {{ form|crispy }}
         <button type='submit' class="w-full text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md">
             Submit
         </button>
