@@ -1,5 +1,7 @@
 
-from django.core.checks import messages
+import os
+import zipfile
+# from django.core.checks import messages
 from django.db.models.aggregates import StdDev
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -11,9 +13,11 @@ from .decorators import *
 from .models import User
 from django.core.mail import send_mail
 from django.contrib import messages
-
-
+import urllib.parse
+import core.settings as settings
 # Create your views here.
+
+
 def error_404(request, exception):
     return render(request, '404.html',)
 
@@ -173,8 +177,10 @@ def HOD_Dashboard(request):
     user = request.user.hod
     teachers = Teacher_User.objects.filter(department=user.department)
     students = Student_User.objects.filter(department=user.department)
-    assigned_courses = Course.objects.filter(department=user.department, teacher__isnull=False)
-    unassigned_courses = Course.objects.filter(department=user.department, teacher__isnull=True)
+    assigned_courses = Course.objects.filter(
+        department=user.department, teacher__isnull=False)
+    unassigned_courses = Course.objects.filter(
+        department=user.department, teacher__isnull=True)
 
     # teacher_user=User.objects.filter(is_teacher=True)
     # teachers=User.teacher_user.filter(department=user.department)
@@ -291,7 +297,6 @@ def Batch_detail(request, pk):
         'batch': batch,
         'students': students,
     })
-        
 
 
 @hod_required
@@ -311,7 +316,7 @@ def Batch_Create_View(request):
 
 
 @hod_required
-def Batch_Update_View(request,pk):
+def Batch_Update_View(request, pk):
     department = request.user.hod.department
     batch = get_object_or_404(Batch, id=pk, department=department)
     if request.method == 'POST':
@@ -333,20 +338,20 @@ def Batch_delete_View(request, pk):
     return redirect('batch-list-view')
 
 
-class Semester_Create_View(HODRequiredMixin,CreateView):
+class Semester_Create_View(HODRequiredMixin, CreateView):
     form_class = Semester_Create_Form
     template_name = "HOD/batch-create-view.html"
 
     def get_success_url(self):
         return reverse('batch-list-view')
 
-    def get_form_kwargs(self):
-        """ Passes the request object to the form class.
-         This is necessary to only display members that belong to a given user"""
+    # def get_form_kwargs(self):
+    #     """ Passes the request object to the form class.
+    #      This is necessary to only display members that belong to a given user"""
 
-        kwargs = super(Semester_Create_View, self).get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
+    #     kwargs = super(Semester_Create_View, self).get_form_kwargs()
+    #     kwargs['request'] = self.request
+    #     return kwargs
 
     def form_valid(self, form):
         """If the form is valid, save the associated model."""
@@ -354,94 +359,79 @@ class Semester_Create_View(HODRequiredMixin,CreateView):
         semester.department = self.request.user.hod.department
         semester.save()
         return super().form_valid(form)
-class Semester_Update_View(HODRequiredMixin,UpdateView):
+
+
+class Semester_Update_View(HODRequiredMixin, UpdateView):
     form_class = Semester_Create_Form
-    model=Semester
+    model = Semester
     template_name = "HOD/batch-create-view.html"
 
     def get_success_url(self):
-        
+
         return reverse('semester_detail', args=(self.kwargs.get('pk')),)
 
-    def get_form_kwargs(self):
-        kwargs = super(Semester_Update_View, self).get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
+    # def get_form_kwargs(self):
+    #     kwargs = super(Semester_Update_View, self).get_form_kwargs()
+    #     kwargs['request'] = self.request
+    #     return kwargs
 
 
 @hod_required
 def Semester_detail(request, pk):
     department = request.user.hod.department
-    semester = get_object_or_404(Semester, id=pk,department=department)
-    
+    semester = get_object_or_404(Semester, id=pk, department=department)
 
-    return render(request, 'HOD/Semester-detail.html', context={'semester': semester,})
+    return render(request, 'HOD/Semester-detail.html', context={'semester': semester, })
 
 
 @hod_required
-def Semester_delete(request,pk):
+def Semester_delete(request, pk):
     department = request.user.hod.department
-    semester = get_object_or_404(Semester, id=pk,department=department)
+    semester = get_object_or_404(Semester, id=pk, department=department)
     semester.delete()
     return redirect('batch-list-view')
 
 
-@hod_required
-def Course_Create_View(request,):
-    if request.method == 'POST':
-        form = Course_Create_Form(request.POST)
+class Course_Create_View(HODRequiredMixin, CreateView):
+    form_class = Course_Create_Form
+    template_name = "HOD/batch-create-view.html"
 
-        if form.is_valid():
-            departement = request.user.hod.department
-            courses = Course.objects.filter(department=departement)
-            course = form.save(commit=False)
-            for c in courses:
-                if c.subject_name.lower() == course.subject_name.lower() :
-                    messages.info(
-                        request, f'A subject with the name {c} already exist.')
-                    return redirect('course_create_view')
-            course.department = departement
-            course.save()
-            return redirect('hod-dashboard')
-                
-    else:
-        form = Course_Create_Form()
-    return render(request, 'HOD/batch-create-view.html', context={'form': form, })
+    def get_success_url(self):
+        return reverse('hod-dashboard')
+
+    def get_form_kwargs(self):
+        """ Passes the request object to the form class.
+         This is necessary to only display members that belong to a given user"""
+
+        kwargs = super(Course_Create_View, self).get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+    def form_valid(self, form):
+        """If the form is valid, save the associated model."""
+        course = form.save(commit=False)
+        course.department = self.request.user.hod.department
+        course.save()
+        return super().form_valid(form)
 
 
-@hod_required
-def Course_Update_View(request, pk):
-    department = request.user.hod.department
-    course=get_object_or_404(Course,id=pk,department=department)
-    if request.method == 'POST':
-        form = Course_Create_Form(request.POST or None, instance=course)
+class Course_Update_View(HODRequiredMixin, UpdateView):
+    form_class = Course_Create_Form
+    model = Course
+    template_name = "HOD/batch-create-view.html"
 
-        if form.is_valid():
-            departement = request.user.hod.department
-            courses = Course.objects.filter(department=departement)
-            course = form.save(commit=False)
-            for c in courses:
-                if c.subject_name.lower() == course.subject_name.lower():
-                    messages.info(
-                        request, f'A subject with the name {c} already exist.')
-                    return redirect('course_update_view',id=pk)
-            course.save()
-            return redirect('hod-dashboard')
-                
-    else:
-        form = Course_Create_Form(request.POST or None, instance=course)
-    return render(request, 'HOD/batch-create-view.html', context={'form': form, })
+    def get_success_url(self):
 
-    # def form_valid(self, form):
-    #     """If the form is valid, save the associated model."""
-    #     semester = form.save(commit=False)
-    #     semester.department = self.request.user.hod.department
-    #     semester.save()
-    #     return super().form_valid(form)
+        return reverse('hod-dashboard')
+
+    def get_form_kwargs(self):
+        kwargs = super(Course_Update_View, self).get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
 
 
 @hod_required
-def Course_Delete_View(request,pk):
+def Course_Delete_View(request, pk):
     department = request.user.hod.department
     course = get_object_or_404(Course, id=pk, department=department)
     course.delete()
@@ -493,7 +483,7 @@ def Student_Update_View(request, pk):
     user = get_object_or_404(User, id=pk)
     department = request.user.hod.department
     student = user.student_user
-    student_department=student.department
+    student_department = student.department
     print(student_department)
     if department == student_department:
         if request.method == 'POST':
@@ -523,7 +513,7 @@ def Student_delete_View(request, pk):
     department = request.user.hod.department
     student = user.student_user
     student_department = student.department
-    if department==student_department:
+    if department == student_department:
         user.delete()
         return redirect('batch_detail', pk=student)
     else:
@@ -533,16 +523,103 @@ def Student_delete_View(request, pk):
 # Teachers dashboard
 
 
+@teacher_required
+def Teacher_dashboard(request):
+    assigned_courses = Course.objects.filter(
+        teacher=request.user.teacher_user)
+    context = {'assigned_courses': assigned_courses}
+    return render(request, 'teacher/dashboard.html', context)
 
-# def Teacher_dashboard(request):
-#     assigned_courses = Course.objects.filter(
-#         teacher=request.user.teacher_user)
-#     context = {'assigned_courses': assigned_courses}
-#     return render(request,'teacher/dashboard.html',context)
 
-# def Teacher_Course_Detail(request,pk):
-#     course=get_object_or_404(Course,id=pk,department=request.user.teacher_user.department)
-#     context={
-#         'course':course,
-#     }
-#     return render(request, 'teacher/teacher_course_detail.html', context)
+@teacher_required
+def Teacher_Course_Detail(request, pk):
+    teacher = request.user.teacher_user
+    course = get_object_or_404(
+        Course, id=pk, department=teacher.department, teacher=teacher)
+    assignments = Assignment.objects.filter(subject=course)
+    context = {
+        'course': course,
+        'assignments': assignments,
+    }
+    return render(request, 'teacher/teacher_course_detail.html', context)
+
+
+@teacher_required
+def Assignment_Detail_View(request, pk):
+    teacher = request.user.teacher_user
+    a = get_object_or_404(
+        Assignment, id=pk)
+    if a.subject.teacher == teacher:
+        assignment = a
+        assignment_solution = Assignment_Submission.objects.filter(
+            assignment=assignment)
+
+        context = {
+            'assignment': assignment,
+            'assignment_solution': assignment_solution,
+            # 'path':path,
+        }
+    else:
+        return redirect('teacher-dashboard')
+    return render(request, 'teacher/assignment-detail-view.html', context)
+
+
+@teacher_required
+def download_assignments(request, pk):
+    assignment = get_object_or_404(
+        Assignment, id=pk)
+    assignment_solution = Assignment_Submission.objects.filter(
+        assignment=assignment)
+    if assignment_solution:
+        url = assignment_solution[1].file.url  # Type string
+        url = urllib.parse.unquote(url)
+        # url=urllib.parse.unquote(url)
+        path_finding = url.split('/')
+        if len(path_finding) > 2:
+            r = len(path_finding)-2
+            path_tuple = []
+            for x in range(r):
+                path_tuple.append(path_finding[x])
+
+            path = '\\'.join(path_tuple)
+            folder_name = path_tuple[-1]
+            path = str(settings.BASE_DIR)+path
+            desktop = os.path.join(os.path.join(
+                os.environ['USERPROFILE']), 'Desktop')
+            zip_directory(path, f'{desktop}/{folder_name}.zip')
+            messages.success(request, 'Downloaded successfully.')
+    return HttpResponseRedirect(reverse('assignment-detail-view', args=(pk,)))
+
+
+def zip_directory(folder_path, zip_path):
+    with zipfile.ZipFile(zip_path, mode='w') as zipf:
+        len_dir_path = len(folder_path)
+        for root, _, files in os.walk(folder_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                zipf.write(file_path, file_path[len_dir_path:])
+
+
+@teacher_required
+def Assignment_Create_View(request, pk):
+
+    if request.method == 'POST':
+        form = Assignment_Form(request.POST, request.FILES)
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.subject = get_object_or_404(Course, id=pk)
+            form.save()
+            return redirect('teacher-course-detail', pk=pk)
+    else:
+        form = Assignment_Form()
+    return render(request, 'HOD/batch-create-view.html', {'form': form})
+
+
+# Student Dashboard
+
+# def Student_Dashboard(request):
+#     user = request.user
+#     student = get_object_or_404(Student_User,student=user)
+#     semester=student.batch.semester
+#     print(student,user,Course.objects.filter(semester=semester))
+#     return redirect('/')

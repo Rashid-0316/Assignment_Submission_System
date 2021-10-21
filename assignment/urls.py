@@ -37,15 +37,21 @@ urlpatterns = [
     path('student-create-view/<str:pk>',Student_Create_View,name='student_create_view'),
     path('student-update-view/<str:pk>',Student_Update_View,name='student_update_view'),
     path('student-delete-view/<str:pk>',Student_delete_View,name='student_delete_view'),
-    path('course-create-view/',Course_Create_View, name='course_create_view'),
-    path('course-update-view/<str:pk>/',Course_Update_View, name='course_update_view'),
+    path('course-create-view/',Course_Create_View.as_view(), name='course_create_view'),
+    path('course-update-view/<str:pk>/',Course_Update_View.as_view(), name='course_update_view'),
     path('course-delete-view/<str:pk>/',Course_Delete_View, name='course_delete_view'),
 
     
     #Teacher dashboard
-    # path('teacher-dashboard', Teacher_dashboard, name='teacher-dashboard'),
-    # path('teacher-course-detail/<str:pk>/',
-    #      Teacher_Course_Detail, name='teacher-course-detail'),
+    path('teacher-dashboard', Teacher_dashboard, name='teacher-dashboard'),
+    path('teacher-course-detail/<str:pk>/',Teacher_Course_Detail, name='teacher-course-detail'),
+    path('assignment-create-view/<str:pk>/',Assignment_Create_View, name='assignment-create-view'),
+    path('assignment-detail-view/<str:pk>/',Assignment_Detail_View, name='assignment-detail-view'),
+    path('assignment-download-view/<str:pk>/',download_assignments, name='download_assignments'),
+
+
+    # #Student dashboard
+    # path('student-dashboard', Student_Dashboard, name='student-dashboard'),
 
 
 ]

@@ -43,3 +43,17 @@ def hod_required(function):
             # return HttpResponseRedirect('/')
             return function(request, *args, **kwargs)
   return wrap
+
+
+def teacher_required(function):
+  @wraps(function)
+  def wrap(request, *args, **kwargs):
+    if not request.user.is_authenticated:
+        return redirect("/login/")
+    else:
+        if not request.user.is_teacher:
+            return redirect('landing-page')
+        else:
+            # return HttpResponseRedirect('/')
+            return function(request, *args, **kwargs)
+  return wrap

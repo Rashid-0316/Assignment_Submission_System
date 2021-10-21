@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models.base import Model
 from .manager import UserManager
 from django.db.models.signals import post_save
+from django.utils.timezone import now
 from django.urls import reverse
 
 # class University(models.Model):
@@ -123,7 +124,7 @@ class Teacher_User(models.Model):
 class Semester(models.Model):
     """Model definition for Semester."""
     name = models.CharField(max_length=250)
-    courses=models.ManyToManyField("Course",null=True,blank=True,related_name='semester_course')
+    # courses=models.ManyToManyField("Course",null=True,blank=True,related_name='semester_course')
     department = models.ForeignKey(Department,related_name='semesters',null=True, blank=True, on_delete=models.CASCADE)
     class Meta:
         """Meta definition for Semester."""
@@ -141,6 +142,8 @@ class Course(models.Model):
     subject_name = models.CharField(max_length=250, null=True, blank=True)
     subject_code = models.CharField(max_length=250,null=True,blank=True)
     teacher=models.ForeignKey(Teacher_User,related_name='courses_of_teacher',on_delete=models.CASCADE,null=True,blank=True)
+    semester = models.ForeignKey(Semester, related_name='courses',
+                                on_delete=models.CASCADE, null=True, blank=True)
     department = models.ForeignKey(
         Department, related_name='course', null=True, blank=True, on_delete=models.CASCADE)
 
@@ -153,6 +156,36 @@ class Course(models.Model):
     def __str__(self):
         return self.subject_name
 
+
+def assignement_create_path(instance, filename):
+    # path = f"assignments/{instance.subject.department.id}/{instance.subject.department}/{instance.subject.semester}/{instance.subject}/"
+    return 'assignments/{0}/{1}/{2}/{3}'.format(instance.subject.department.id, instance.subject.semester, instance.subject, filename)
+class Assignment(models.Model):
+    subject = models.ForeignKey(Course, related_name='assignments',on_delete=models.CASCADE)
+    title = models.CharField(max_length=250)
+    description=models.TextField(null=True,blank=True)
+    file = models.FileField(upload_to=assignement_create_path, max_length=100)
+
+    def __str__(self):
+        return self.title
+
+
+def assignement_submit_path(instance, filename):
+    # path = f"assignments/{instance.subject.department.id}/{instance.subject.department}/{instance.subject.semester}/{instance.subject}/"
+    return 'submission/{0}/{1}/{2}/{3} {4}/{5}'.format(instance.student.department.id, instance.student.batch.semester, instance.assignment, instance.student.roll_no, instance.student.student.first_name, filename)
+class Assignment_Submission(models.Model):
+    student = models.ForeignKey("Student_User", related_name='assign_of_student', on_delete=models.CASCADE)
+    assignment = models.ForeignKey(Assignment, related_name='solutions', on_delete=models.CASCADE)
+    submission_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    file = models.FileField(upload_to=assignement_submit_path, max_length=100)
+    class Meta:
+        """Meta definition for Assignment_Submission."""
+
+        verbose_name = 'Assignment_Submission'
+        verbose_name_plural = 'Assignment_Submissions'
+
+    def __str__(self):
+        return f"Roll no {self.student.roll_no} {self.student.department} {self.student.batch}"
 
 class Batch(models.Model):
     name = models.CharField(max_length=250)

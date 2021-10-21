@@ -11,4 +11,8 @@ admin.site.register(Student_User)
 admin.site.register(Batch)
 admin.site.register(Semester)
 admin.site.register(Course)
+admin.site.register(Assignment)
+admin.site.register(Assignment_Submission)
+
+
 # admin.site.register(Subject)

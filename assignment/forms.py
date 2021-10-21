@@ -84,19 +84,19 @@ class Semester_Create_Form(forms.ModelForm):
     class Meta:
         """Meta definition for Batch_Create_form."""
         model = Semester
-        fields = ('name', 'courses',)
+        fields = ('name',)
 
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
 
-        self.request = kwargs.pop('request')
-        super(Semester_Create_Form, self).__init__(*args, **kwargs)
-        self.fields['courses'].queryset = Course.objects.filter(
-            department=self.request.user.hod.department)
+    #     self.request = kwargs.pop('request')
+    #     super(Semester_Create_Form, self).__init__(*args, **kwargs)
+    #     self.fields['courses'].queryset = Course.objects.filter(
+    #         department=self.request.user.hod.department)
     name = forms.CharField()
-    courses = forms.ModelMultipleChoiceField(
-        queryset=Course.objects.all(),
-        widget=forms.CheckboxSelectMultiple
-    )
+    # courses = forms.ModelMultipleChoiceField(
+    #     queryset=Course.objects.all(),
+    #     widget=forms.CheckboxSelectMultiple
+    # )
     
     
 
@@ -126,4 +126,27 @@ class Student_Create_Form(forms.ModelForm):
 class Course_Create_Form(forms.ModelForm):
     class Meta:
         model = Course
-        fields = ('subject_name', 'subject_code', 'teacher',)
+        fields = ('subject_name', 'subject_code', 'teacher','semester')
+    
+    def __init__(self, *args, **kwargs):
+
+        self.request = kwargs.pop('request')
+        super(Course_Create_Form, self).__init__(*args, **kwargs)
+        self.fields['teacher'].queryset = Teacher_User.objects.filter(
+            department=self.request.user.hod.department)
+        self.fields['semester'].queryset = Semester.objects.filter(
+            department=self.request.user.hod.department)
+    # courses = forms.ModelMultipleChoiceField(
+    #     queryset=Course.objects.all(),
+    #     widget=forms.CheckboxSelectMultiple
+    # )
+
+
+class Assignment_Form(forms.ModelForm):
+    """Form definition for Assignment."""
+
+    class Meta:
+        """Meta definition for Assignmentform."""
+
+        model = Assignment
+        fields = ('title','description','file',)
