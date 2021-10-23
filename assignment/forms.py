@@ -150,3 +150,13 @@ class Assignment_Form(forms.ModelForm):
 
         model = Assignment
         fields = ('title','description','file',)
+
+
+class Assignment_Submission_Form(forms.ModelForm):
+    """Form definition for Assignment."""
+
+    class Meta:
+        """Meta definition for Assignmentform."""
+
+        model = Assignment_Submission
+        fields = ('file',)

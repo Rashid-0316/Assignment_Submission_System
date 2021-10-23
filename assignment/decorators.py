@@ -6,8 +6,10 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.http import HttpResponse
 
+
 class SuperRequiredMixin(LoginRequiredMixin):
     """Verify that the current user is authenticated."""
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated or not request.user.is_superuser:
             return redirect("landing-page")
@@ -32,28 +34,42 @@ class HODRequiredMixin(LoginRequiredMixin):
 
 
 def hod_required(function):
-  @wraps(function)
-  def wrap(request, *args, **kwargs):
-    if not request.user.is_authenticated:
-        return redirect("/login/")
-    else:
-        if not request.user.is_hod:
-            return redirect('landing-page')
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect("/login/")
         else:
-            # return HttpResponseRedirect('/')
-            return function(request, *args, **kwargs)
-  return wrap
+            if not request.user.is_hod:
+                return redirect('landing-page')
+            else:
+                # return HttpResponseRedirect('/')
+                return function(request, *args, **kwargs)
+    return wrap
 
 
 def teacher_required(function):
-  @wraps(function)
-  def wrap(request, *args, **kwargs):
-    if not request.user.is_authenticated:
-        return redirect("/login/")
-    else:
-        if not request.user.is_teacher:
-            return redirect('landing-page')
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect("/login/")
         else:
-            # return HttpResponseRedirect('/')
-            return function(request, *args, **kwargs)
-  return wrap
+            if not request.user.is_teacher:
+                return redirect('landing-page')
+            else:
+                # return HttpResponseRedirect('/')
+                return function(request, *args, **kwargs)
+    return wrap
+
+
+def student_required(function):
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect("/login/")
+        else:
+            if not request.user.is_student:
+                return redirect('landing-page')
+            else:
+                # return HttpResponseRedirect('/')
+                return function(request, *args, **kwargs)
+    return wrap

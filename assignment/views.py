@@ -15,7 +15,6 @@ from django.core.mail import send_mail
 from django.contrib import messages
 import urllib.parse
 import core.settings as settings
-# Create your views here.
 
 
 def error_404(request, exception):
@@ -616,10 +615,76 @@ def Assignment_Create_View(request, pk):
 
 
 # Student Dashboard
+@student_required
+def Student_Dashboard(request):
+    user = request.user
+    student = get_object_or_404(Student_User, student=user)
+    semester = student.batch.semester
+    courses = Course.objects.filter(semester=semester)
+    print(student, user, Course.objects.filter(semester=semester))
+    context = {
+        'user': user,
+        'student': student,
+        'semester': semester,
+        'courses': courses,
+    }
+    return render(request, 'student/dashboard.html', context)
 
-# def Student_Dashboard(request):
-#     user = request.user
-#     student = get_object_or_404(Student_User,student=user)
-#     semester=student.batch.semester
-#     print(student,user,Course.objects.filter(semester=semester))
-#     return redirect('/')
+@student_required
+def Student_Course_Detail(request, c_id):
+    user = request.user
+    student = get_object_or_404(Student_User, student=user)
+    semester = student.batch.semester
+    course = get_object_or_404(
+        Course, id=c_id, semester=semester, department=student.department)
+    assignments = Assignment.objects.filter(subject=course)
+    context = {
+        'user': user,
+        'student': student,
+        'semester': semester,
+        'course': course,
+        'assignments': assignments,
+    }
+    return render(request, 'student/course_detail.html', context)
+
+
+@student_required
+def Student_Assignment_Detail_View(request, pk):
+    student = request.user.student_user
+    semester=student.batch.semester
+    a = get_object_or_404(
+        Assignment, id=pk)
+    if a.subject.semester == semester:
+        assignment = a
+        context = {
+            'assignment': assignment,
+        }
+    else:
+        return redirect('student-dashboard')
+    return render(request, 'student/assignment-detail.html', context)
+
+
+@student_required
+def Assignment_Submit_View(request, pk):
+    student = request.user.student_user
+    a = get_object_or_404(Assignment, id=pk)
+    s = Assignment_Submission.objects.filter(assignment=a,student=student)
+
+    print(a,s)
+    if s.count()>0:
+        messages.success(request, 'You have already submitted the assignment.')
+        return redirect('student-assignment-detail-view', pk=pk)
+    else:
+        if request.method == 'POST':
+            form = Assignment_Submission_Form(request.POST, request.FILES)
+            if form.is_valid():
+                form = form.save(commit=False)
+                form.assignment = get_object_or_404(Assignment, id=pk)
+                form.student=student
+                messages.success(request, 'You have successfully submitted the assignment.')
+                form.save()
+                
+                return redirect('student-assignment-detail-view', pk=pk)
+        else:
+            form = Assignment_Submission_Form()
+        return render(request, 'student/assignment-submit-view.html', {'form': form})

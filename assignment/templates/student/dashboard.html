@@ -3,8 +3,50 @@
 
 <section class="text-gray-600 body-font overflow-hidden">
 
-  <div class="container px-5 py-24 mx-auto">
-  
+  <div class="container px-5 py-10 mx-auto">
+  <div class="flex flex-col">
+  <h1 class="
+          sm:text-3xl
+          text-2xl
+          title-font
+          font-bold
+          text-gray-900
+          mt-4
+          mb-4
+        ">
+        {{student.student.first_name}} {{student.student.last_name}}
+</h1>
+<h1 class="
+          sm:text-xl
+          text-lg
+          title-font
+          text-gray-900
+          mt-2
+          mb-2
+        ">
+        Batch: {{student.batch}}
+</h1>
+<h1 class="
+          sm:text-xl
+          text-lg
+          title-font
+          text-gray-900
+          mt-2
+          mb-2
+        ">
+        Semester: {{semester|title}}
+</h1>
+<h1 class="
+          sm:text-xl
+          text-lg
+          title-font
+          text-gray-900
+          mt-2
+          mb-2
+        ">
+        Roll No: {{student.roll_no}}
+</h1>
+  </div>
     <div class="flex justify-between">
       <h1
         class="
@@ -29,7 +71,7 @@
     </div>
     <br />
     <div class="flex flex-wrap -m-12">
-      {% for course in assigned_courses %}
+      {% for course in courses %}
       <div class="p-12 md:w-1/2 flex flex-col items-start">
         <h2
           class="
@@ -59,7 +101,7 @@
           "
         >
           <a
-            href="{% url 'teacher-course-detail' course.id %}"
+            href="{% url 'student-course-detail' course.id %}"
             class="text-indigo-500 inline-flex items-center"
             >View
             <svg

@@ -178,6 +178,7 @@ class Assignment_Submission(models.Model):
     assignment = models.ForeignKey(Assignment, related_name='solutions', on_delete=models.CASCADE)
     submission_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     file = models.FileField(upload_to=assignement_submit_path, max_length=100)
+    
     class Meta:
         """Meta definition for Assignment_Submission."""
 

@@ -51,7 +51,11 @@ urlpatterns = [
 
 
     # #Student dashboard
-    # path('student-dashboard', Student_Dashboard, name='student-dashboard'),
-
+    path('student-dashboard', Student_Dashboard, name='student-dashboard'),
+    path('student-course-detail/<str:c_id>/',
+         Student_Course_Detail, name='student-course-detail'),
+    path('student-assignment-detail-view/<str:pk>/',Student_Assignment_Detail_View, name='student-assignment-detail-view'),
+    path('assignment-submit-view/<str:pk>/',
+         Assignment_Submit_View, name='assignment-submit-view'),
 
 ]
